@@ -464,12 +464,9 @@ app.delete('/delete-user', authenticateToken, async (req, res) => {
       }
     });
 });
+// basic get request 
+app.get('/', async (req, res) => {
+    res.json({message:"Working"});
+});
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`));
 
-
-
-// basic get request 
-// app.get('/', async (req, res) => {
-//     const user = await userModel.find({});
-//     res.send(user);
-// });
