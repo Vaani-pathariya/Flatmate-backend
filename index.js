@@ -61,9 +61,9 @@ app.post('/send-otp', async (req, res) => {
       })
       // Send OTP to the provided email (using Nodemailer, for example)
       const mailOptions = {
-        from: '21CS023 Vaani Pathariya <vpathariya2111@gmail.com>', // sender address
+        from: 'Flatmate <vpathariya2111@gmail.com>', // sender address
         to: `${email}`, // list of receivers
-        subject: 'Hello OTP this side', // Subject line
+        subject: ' OTP ', // Subject line
         text: `${otp}`,
         html: `<b>${otp}</b>` // html body
       };
