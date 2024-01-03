@@ -330,7 +330,7 @@ app.post('/store-flat-status', authenticateToken, async (req, res) => {
 });
 app.post('/store-address-rent', authenticateToken, async (req, res) => {
     try {
-      const { flat, area, additional, rent } = req.body;
+      const { flat, area, additional, monthlyAmount,brokerage } = req.body;
       const { userId } = req.user;
   
       const user = await userModel.findById(userId);
