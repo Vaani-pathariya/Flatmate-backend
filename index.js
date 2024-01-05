@@ -102,19 +102,18 @@ app.post('/send-otp', async (req, res) => {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   });
-app.post('/signup', async (req, res) => {
+  app.post('/signup', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password} = req.body;
 
         // Check if the email is already registered
         const existingUser = await userModel.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'Email is already registered' });
+            return res.status(400).json({ message: 'email is already registered' });
         }
 
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
-
         // Create a new user
         const newUser = new userModel({
             email,
