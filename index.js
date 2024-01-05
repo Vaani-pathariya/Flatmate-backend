@@ -7,9 +7,21 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const userModel = require("./models");
+const messageModel=require("./message")
 const nodemailer = require('nodemailer');
 const authenticateToken = require('./authenticateToken');
+const http = require('http');
+const socketIO = require('socket.io');
 const app = express();
+const server = http.createServer(app);
+const { ObjectId } = require('mongodb');
+const io = socketIO(server,{
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+});
 const port = 8000;
 app.use(cors());
 
@@ -102,18 +114,19 @@ app.post('/send-otp', async (req, res) => {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   });
-  app.post('/signup', async (req, res) => {
+app.post('/signup', async (req, res) => {
     try {
-        const { email, password} = req.body;
+        const { email, password } = req.body;
 
         // Check if the email is already registered
         const existingUser = await userModel.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'email is already registered' });
+            return res.status(400).json({ message: 'Email is already registered' });
         }
 
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
+
         // Create a new user
         const newUser = new userModel({
             email,
@@ -418,7 +431,73 @@ app.post('/store-address-rent', authenticateToken, async (req, res) => {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   });
+  app.post('/swipe-user', authenticateToken, async (req, res) => {
+    try {
+      const { objectId } = req.body;
+      const objectIdToSave=new ObjectId(objectId);
+      const { userId } = req.user;
+  
+      const user = await userModel.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      const newMessage = new messageModel({
+        sender: userId,
+        receiver: objectIdToSave,
+        text: "You can now Chat with this user",
+      });
+
+      // Save the message to MongoDB
+      await newMessage.save();
+      res.status(200).json({ message: 'User stored successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
 // Get request to get all the data : 
+app.post('/read-messages', authenticateToken, async (req, res) => {
+  try {
+    const { user2IdString} = req.body;
+    const { userId } = req.user;
+    const userId2=new ObjectId(user2IdString);
+    const messages = await messageModel
+      .find({
+        $or: [
+          { sender: userId, receiver: userId2 },
+          { sender: userId2, receiver: userId },
+        ],
+        read: true, 
+      })
+      .sort({ timestamp: -1 }); // Sort by timestamp in ascending order (earliest to oldest)
+
+    res.status(200).json({ messages });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+app.post('/unread-messages', authenticateToken, async (req, res) => {
+  try {
+    const { user2IdString} = req.body;
+    const { userId } = req.user;
+    const userId2=new ObjectId(user2IdString);
+    const messages = await messageModel
+      .find({
+        $or: [
+          { sender: userId, receiver: userId2 },
+          { sender: userId2, receiver: userId },
+        ],
+        read: false, 
+      })
+      .sort({ timestamp: 1 }); // Sort by timestamp in ascending order (earliest to oldest)
+
+    res.status(200).json({ messages });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 app.get('/user-details', authenticateToken, async (req, res) => {
     try {
         const { userId } = req.user;
@@ -436,6 +515,62 @@ app.get('/user-details', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+app.get('/messages-access', authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    // Find the user by userId
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Find unique users messaged by the current user
+    const messages = await messageModel.find({
+      $or: [{ sender: userId }, { receiver: userId }],
+    });
+
+    // Extract unique user IDs from the messages
+    const uniqueUserIds = Array.from(
+      new Set([
+        ...messages.map((message) => message.sender.toString()),
+        ...messages.map((message) => message.receiver.toString()),
+      ])
+    );
+
+    // Fetch user details for the unique user IDs
+    const uniqueUsers = await Promise.all(
+      uniqueUserIds.map(async (uniqueUserId) => {
+        const userDetails = await userModel.findById(uniqueUserId).select('email _id');
+        const latestMessage = await messageModel
+          .findOne({
+            $or: [
+              { sender: userId, receiver: uniqueUserId },
+              { sender: uniqueUserId, receiver: userId },
+            ],
+          })
+          .sort({ timestamp: -1  })
+          .limit(1);
+
+        return {
+          ...userDetails.toObject(),
+          latestMessage: latestMessage || null,
+        };
+      })
+    );
+    uniqueUsers.sort((a, b) => {
+      const timestampA = a.latestMessage ? a.latestMessage.timestamp : 0;
+      const timestampB = b.latestMessage ? b.latestMessage.timestamp : 0;
+      return timestampB - timestampA;
+    });
+    const filteredUsers = uniqueUsers.filter(user => user.latestMessage !== null);
+    res.status(200).json({ uniqueUsers:filteredUsers });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 app.delete('/delete-user', authenticateToken, async (req, res) => {
     try {
         const { userId } = req.user;
@@ -452,7 +587,7 @@ app.delete('/delete-user', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-  app.post('/logout', (req, res) => {
+app.post('/logout', (req, res) => {
     req.logout(); // Assuming you are using passport for authentication
     req.session.destroy((err) => {
       if (err) {
@@ -467,5 +602,59 @@ app.delete('/delete-user', authenticateToken, async (req, res) => {
 app.get('/', async (req, res) => {
     res.json({message:"Working"});
 });
-app.listen(port, () => console.log(`Hello world app listening on port ${port}!`));
+// Implementing messaging 
+io.on('connection', (socket) => {
+  console.log('connected');
 
+  // Listen for messages
+  socket.on('authenticate', (token) => {
+    try {
+      const decoded = jwt.verify(token, 'your-secret-key');
+      // Add the user to a room based on their user ID
+      console.log("Auth done")
+      socket.join(decoded.userId);
+    } catch (error) {
+      console.error('Authentication failed:', error.message);
+    }
+  });
+
+  socket.on('message', async (data) => {
+    try {
+      // Authenticate the sender based on the JWT token
+      const senderData = jwt.verify(data.senderToken, 'your-secret-key');
+      // Create a new message
+      const newMessage = new messageModel({
+        sender: senderData.userId,
+        receiver:  new ObjectId(data.receiver),
+        text: data.text,
+      });
+
+      // Save the message to MongoDB
+      await newMessage.save();
+
+      // Broadcast the message to the sender
+      socket.emit('message', newMessage);
+      // Broadcast the message to the receiver
+      io.to(data.receiver).emit('message', newMessage);
+    } catch (error) {
+      console.error(error.message);
+    }
+  });
+  socket.on('message-read', async (messageId) => {
+    try {
+      // Update the read status in MongoDB
+      await messageModel.findByIdAndUpdate(messageId, { read: true });
+      // Broadcast the updated message to all connected users
+      io.emit('message-read', messageId);
+    } catch (error) {
+      console.error(error.message);
+    }
+  });
+  // Disconnect event
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
+server.listen(port, () => {
+  console.log(`Hello world app listening on port ${port}!`);
+});

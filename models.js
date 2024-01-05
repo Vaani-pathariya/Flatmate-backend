@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
@@ -65,7 +66,7 @@ const UserSchema = new mongoose.Schema({
     },
     picture:{
         type:String,
-    }
+    },
 });
 
 const User = mongoose.model("User", UserSchema);
