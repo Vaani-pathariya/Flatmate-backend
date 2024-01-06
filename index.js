@@ -15,6 +15,7 @@ const socketIO = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const { ObjectId } = require('mongodb');
+// The read field in messages refers to whether the message has been read by the receiver or not , since the message is obviously read by the sender 
 const io = socketIO(server,{
   cors: {
     origin: (origin, callback) => {
