@@ -1,5 +1,5 @@
-const { ObjectId } = require('mongodb');
-const mongoose = require('mongoose');
+const { ObjectId } = require("mongodb");
+const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema({
   sender: {
@@ -18,12 +18,12 @@ const messageSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  read:{
-    type:Boolean,
-    default:false,
-  }
+  read: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const Message = mongoose.model('Message', messageSchema);
+const Message = mongoose.model("Message", messageSchema);
 
 module.exports = Message;
