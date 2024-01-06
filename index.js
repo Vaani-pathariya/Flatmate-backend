@@ -17,7 +17,18 @@ const server = http.createServer(app);
 const { ObjectId } = require('mongodb');
 const io = socketIO(server,{
   cors: {
-    origin: 'http://localhost:3000',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      // Check if the origin is allowed
+      const allowedOrigins = ['http://localhost:3000'];
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST'],
     credentials: true,
   },
