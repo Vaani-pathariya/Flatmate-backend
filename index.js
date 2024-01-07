@@ -71,6 +71,9 @@ const generateOTP = () => {
 app.post("/send-otp", async (req, res) => {
   try {
     const { email } = req.body;
+    if (!email || email=="") {
+      return res.status(400).json({ message: "Email is required" });
+    }
 
     // Check if the email is already registered
     const existingUser = await userModel.findOne({ email });
