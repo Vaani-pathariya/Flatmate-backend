@@ -103,12 +103,13 @@ app.post("/send-otp", async (req, res) => {
     };
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        return console.log(error);
+        console.error("Error sending email:", error);
+        res.status(500).json({ message: "Failed to send OTP email" });
+      } else {
+        console.log("Email sent: %s", info.messageId);
+        res.status(200).json({ message: "OTP sent successfully" });
       }
-      console.log("Message sent: %s", info.messageId);
     });
-    // Respond with success message
-    res.status(200).json({ message: "OTP sent successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
