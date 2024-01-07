@@ -443,7 +443,7 @@ app.post("/store-lifestyle", authenticateToken, async (req, res) => {
     user.workout = workout;
     await user.save();
 
-    res.status(200).json({ message: "Furnishing status stored successfully" });
+    res.status(200).json({ message: "Lifestyle status stored successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -509,7 +509,7 @@ app.post("/read-messages", authenticateToken, async (req, res) => {
       })
       .sort({ timestamp: -1 }); // Sort by timestamp in ascending order (earliest to oldest)
 
-    res.status(200).json({ messages });
+    res.status(200).json({message: "successful", messages });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -530,7 +530,7 @@ app.post("/unread-messages", authenticateToken, async (req, res) => {
       })
       .sort({ timestamp: 1 }); // Sort by timestamp in ascending order (earliest to oldest)
 
-    res.status(200).json({ messages });
+    res.status(200).json({message: "successful", messages });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
