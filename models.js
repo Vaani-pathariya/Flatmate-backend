@@ -29,6 +29,10 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: null,
   },
+  nonVegetarian: {
+    type: Boolean,
+    default: null,
+  },
   occupied: {
     type: Number,
     default: null,

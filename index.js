@@ -434,7 +434,7 @@ app.post(
 );
 app.post("/store-lifestyle", authenticateToken, async (req, res) => {
   try {
-    const { drink, smoke, workout } = req.body;
+    const { drink, smoke, workout , nonVegetarian } = req.body;
     const { userId } = req.user;
 
     const user = await userModel.findById(userId);
@@ -445,6 +445,7 @@ app.post("/store-lifestyle", authenticateToken, async (req, res) => {
     user.drink = drink;
     user.smoke = smoke;
     user.workout = workout;
+    user.nonVegetarian=nonVegetarian;
     await user.save();
 
     res.status(200).json({ message: "Lifestyle status stored successfully" });
