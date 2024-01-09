@@ -110,6 +110,18 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  excludedFlatmates:[
+    {
+      type: ObjectId,
+      default: null
+    },
+  ],
+  excludedFlats:[
+    {
+      type: ObjectId,
+      default: null,
+    },
+  ],
   profileImage: {
     data: {
       type: String, // Storing base64-encoded image data as a string

@@ -15,6 +15,7 @@ const socketIO = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 const { ObjectId } = require("mongodb");
+//Maybe I'll try with paging after some time , but as of now , It's at a good place !
 // The read field in messages refers to whether the message has been read by the receiver or not , since the message is obviously read by the sender
 const io = socketIO(server, {
   cors: {
@@ -879,6 +880,83 @@ app.post("/add-like", authenticateToken, async (req, res) => {
     await userLiked.save();
 
     res.status(200).json({ message: "Like added successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+app.get("/flats", authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const excludedUsers = [...user.excludedFlats, userId];
+    const flats = await userModel
+      .find({
+        hasFlat: true,
+        // _id: { $ne: userId }
+        _id: { $nin: excludedUsers } // Exclude specified user IDs
+      })
+      .select('name email _id flatImages address occupied capacity name year branch smoke workout drink nonVegetarian googlePicture profileImage') 
+      .exec();
+    res.status(200).json({ message: "successful", flats });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+app.post("/dislike-flats", authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const {idString}=req.body;
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const id=new ObjectId(idString)
+    user.excludedFlats.push(id);
+    await user.save()
+    res.status(200).json({ message: "successful"});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+app.post("/dislike-flatmates", authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const {idString}=req.body;
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const id=new ObjectId(idString)
+    user.excludedFlatmates.push(id);
+    await user.save()
+    res.status(200).json({ message: "successful"});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+app.get("/flatmates", authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const excludedUsers = [...user.excludedFlatmates, userId];
+    const flatmates = await userModel
+      .find({
+        // _id: { $ne: userId }
+        _id: { $nin: excludedUsers } // Exclude specified user IDs
+      })
+      .select('name email _id branch year smoke nonVegetarian workout drink googlePicture profileImage displayImg') 
+      .exec();
+    res.status(200).json({ message: "successful", flatmates });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
