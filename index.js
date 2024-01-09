@@ -686,7 +686,7 @@ app.post("/logout", (req, res) => {
   });
 });
 app.post(
-  "/upload-images",
+  "/upload-flat-images",
   authenticateToken,
   upload.array("images"),
   async (req, res) => {
