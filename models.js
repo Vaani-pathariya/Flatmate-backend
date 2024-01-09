@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const { ObjectId } = require("mongodb");
 const UserSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -120,6 +120,12 @@ const UserSchema = new mongoose.Schema({
       default: null,
     },
   },
+  likes: [
+    {
+      type: ObjectId,
+      default: null
+    },
+  ],
   flatImages: [
     {
       data: {

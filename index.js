@@ -824,27 +824,32 @@ app.post(
     }
   }
 );
-// app.post("/add-like", authenticateToken, async (req, res) => {
-//   try {
-//     const { userId } = req.user;
-//     // Find the user by userId
-//     const user = await userModel.findById(userId);
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
+app.post("/add-like", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.body;
+    const { userId } = req.user;
+    // Find the user by userId
+    const actualId = new ObjectId(id);
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const userLiked = await userModel.findById(actualId);
+    if (!userLiked) {
+      return res.status(404).json({ message: "User Liked not found" });
+    }
+    // Add a like to the 0th index of the likes array
+    userLiked.likes.unshift(userId);
 
-//     // Add a like to the 0th index of the likes array
-//     user.likes.unshift("New Like");
+    // Save the user document with the updated likes array
+    await userLiked.save();
 
-//     // Save the user document with the updated likes array
-//     await user.save();
-
-//     res.status(200).json({ message: "Like added successfully" });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Internal Server Error" });
-//   }
-// });
+    res.status(200).json({ message: "Like added successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 app.get("/", async (req, res) => {
   res.json({ message: "Working" });
 });
