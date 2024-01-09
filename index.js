@@ -765,7 +765,7 @@ app.post(
 //     }
 //   }
 // );
-app.get("/get-image", authenticateToken, async (req, res) => {
+app.get("/get-flat-image", authenticateToken, async (req, res) => {
   try {
     const { userId } = req.user;
     const user = await userModel.findById(userId);
