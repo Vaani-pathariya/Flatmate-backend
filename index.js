@@ -799,10 +799,11 @@ app.get("/get-flat-image", authenticateToken, async (req, res) => {
 app.post(
   "/upload-profile-image",
   authenticateToken,
-  upload.single("image"),
+  // upload.single("image"),
   async (req, res) => {
     try {
-      if (!req.file) {
+      const { file } = req.body;
+      if (!file) {
         return res.status(400).json({ message: "No image uploaded" });
       }
       // const imageBuffer = req.file.buffer.toString("base64"); //only needed in website project
@@ -811,9 +812,9 @@ app.post(
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-
+      const imageBuffer = Buffer.from(file, "base64");
       user.profileImage = {
-        data: req.file,
+        data: imageBuffer,
         // contentType: req.file.mimetype,
         contentType: "image/png",
       };
