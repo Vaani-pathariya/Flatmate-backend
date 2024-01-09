@@ -692,10 +692,10 @@ app.post("/logout", (req, res) => {
 app.post(
   "/upload-flat-images",
   authenticateToken,
-  upload.array("images"),
+  // upload.array("images"), -----------> This would have been needed if it was a web project and multer is being used
   async (req, res) => {
     try {
-      const { files } = req;
+      const { files } = req.body;
 
       if (!files || files.length === 0) {
         return res.status(400).json({ message: "No images uploaded" });
@@ -715,10 +715,10 @@ app.post(
       user.flatImages = [];
       files.forEach((file) => {
         // const imageBuffer = file.buffer.toString("base64"); //will be used in website only
-
+        const imageBuffer = Buffer.from(file, "base64");
         user.flatImages.push({
           //data: imageBuffer, //website only
-          data: file, // for apps only
+          data: imageBuffer, // for apps only
           // contentType: req.file.mimetype, // website only
           contentType: "image/png",
         });
@@ -827,6 +827,27 @@ app.post(
     }
   }
 );
+// app.post("/add-like", authenticateToken, async (req, res) => {
+//   try {
+//     const { userId } = req.user;
+//     // Find the user by userId
+//     const user = await userModel.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     // Add a like to the 0th index of the likes array
+//     user.likes.unshift("New Like");
+
+//     // Save the user document with the updated likes array
+//     await user.save();
+
+//     res.status(200).json({ message: "Like added successfully" });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// });
 app.get("/", async (req, res) => {
   res.json({ message: "Working" });
 });
