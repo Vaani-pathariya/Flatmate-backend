@@ -7,6 +7,8 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const userModel = require("./models");
+const multer = require("multer");
+const path = require("path");
 const messageModel = require("./message");
 const nodemailer = require("nodemailer");
 const authenticateToken = require("./authenticateToken");
@@ -68,10 +70,12 @@ const generateOTP = () => {
   const otp = Math.floor(100000 + Math.random() * 900000);
   return otp.toString();
 };
+const storage = multer.memoryStorage(); // You can change this to store files on disk if needed
+const upload = multer({ storage: storage });
 app.post("/send-otp", async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email || email=="") {
+    if (!email || email == "") {
       return res.status(400).json({ message: "Email is required" });
     }
 
@@ -434,7 +438,7 @@ app.post(
 );
 app.post("/store-lifestyle", authenticateToken, async (req, res) => {
   try {
-    const { drink, smoke, workout , nonVegetarian } = req.body;
+    const { drink, smoke, workout, nonVegetarian } = req.body;
     const { userId } = req.user;
 
     const user = await userModel.findById(userId);
@@ -445,7 +449,7 @@ app.post("/store-lifestyle", authenticateToken, async (req, res) => {
     user.drink = drink;
     user.smoke = smoke;
     user.workout = workout;
-    user.nonVegetarian=nonVegetarian;
+    user.nonVegetarian = nonVegetarian;
     await user.save();
 
     res.status(200).json({ message: "Lifestyle status stored successfully" });
@@ -514,7 +518,7 @@ app.post("/read-messages", authenticateToken, async (req, res) => {
       })
       .sort({ timestamp: -1 }); // Sort by timestamp in ascending order (earliest to oldest)
 
-    res.status(200).json({message: "successful", messages });
+    res.status(200).json({ message: "successful", messages });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -535,7 +539,7 @@ app.post("/unread-messages", authenticateToken, async (req, res) => {
       })
       .sort({ timestamp: 1 }); // Sort by timestamp in ascending order (earliest to oldest)
 
-    res.status(200).json({message: "successful", messages });
+    res.status(200).json({ message: "successful", messages });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -570,27 +574,25 @@ app.get("/user-details", authenticateToken, async (req, res) => {
       picture,
     } = user;
     // Respond with the user's details
-    res
-      .status(200)
-      .json({
-        name: name,
-        email: email,
-        capacity: capacity,
-        drink: drink,
-        bio: bio,
-        smoke: smoke,
-        workout: workout,
-        occupied: occupied,
-        furnishingStatus: furnishingStatus,
-        address: address,
-        rent: rent,
-        dob: dob,
-        hasFlat: hasFlat,
-        branch: branch,
-        year: year,
-        gender: gender,
-        picture: picture,
-      });
+    res.status(200).json({
+      name: name,
+      email: email,
+      capacity: capacity,
+      drink: drink,
+      bio: bio,
+      smoke: smoke,
+      workout: workout,
+      occupied: occupied,
+      furnishingStatus: furnishingStatus,
+      address: address,
+      rent: rent,
+      dob: dob,
+      hasFlat: hasFlat,
+      branch: branch,
+      year: year,
+      gender: gender,
+      picture: picture,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -683,7 +685,114 @@ app.post("/logout", (req, res) => {
     }
   });
 });
-// basic get request
+app.post(
+  "/upload-images",
+  authenticateToken,
+  upload.array("images"),
+  async (req, res) => {
+    try {
+      const { files } = req;
+
+      if (!files || files.length === 0) {
+        return res.status(400).json({ message: "No images uploaded" });
+      }
+
+      const { userId } = req.user;
+      const user = await userModel.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      if (files.length > 4) {
+        return res
+          .status(404)
+          .json({ message: "You can only upload upto 4 images" });
+      }
+      user.flatImages = [];
+      files.forEach((file) => {
+        // const imageBuffer = file.buffer.toString("base64"); //will be used in website only
+
+        user.flatImages.push({
+          //data: imageBuffer, //website only
+          data:file, // for apps only 
+          contentType: 'image/png',
+        });
+      });
+      // Save the user document with the new flatImages
+      await user.save();
+
+      res.status(200).json({ message: "Images uploaded successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+// app.post(
+//   "/upload-single-image",
+//   authenticateToken,
+//   upload.single("image"),
+//   async (req, res) => {
+//     try {
+//       const { file, index } = req;
+//       if (!file || index === undefined) {
+//         return res.status(400).json({ message: "No image or index provided" });
+//       }
+
+//       const { userId } = req.user;
+//       const user = await userModel.findById(userId);
+
+//       if (!user) {
+//         return res.status(404).json({ message: "User not found" });
+//       }
+//       if (index < 0 || index >= user.flatImages.length) {
+//         return res.status(400).json({ message: "Invalid index provided" });
+//       }
+//       const imageBuffer = file.buffer.toString("base64");
+
+//       user.flatImages[index]({
+//         data: imageBuffer,
+//         contentType: file.mimetype,
+//       });
+
+//       // Save the user document with the new flatImages
+//       await user.save();
+
+//       res.status(200).json({ message: "Image uploaded successfully" });
+//     } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ message: "Internal Server Error" });
+//     }
+//   }
+// );
+app.get("/get-image", authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Check if flatImages array is not empty
+    if (!user.flatImages || user.flatImages.length === 0) {
+      return res.status(404).json({ message: "Image not found for the user" });
+    }
+
+    // Retrieve the first image from the flatImages array
+    const imageUrls = [];
+    for (i = 0; i < user.flatImages.length; i++) {
+      // imageUrls.push( `data:${user.flatImages[i].contentType};base64,${user.flatImages[i].data}`) //This is how you upload to a web project
+      imageUrls.push(
+        `${user.flatImages[i].data}`
+      );
+    }
+    // Construct the data URL for the first image
+
+    res.status(200).json({ imageUrls: imageUrls });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 app.get("/", async (req, res) => {
   res.json({ message: "Working" });
 });
