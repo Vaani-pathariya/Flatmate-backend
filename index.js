@@ -594,7 +594,7 @@ app.get("/user-details", authenticateToken, async (req, res) => {
       gender: gender,
       googlePicture: googlePicture,
       profileImage: profileImage,
-      displayImg:displayImg
+      displayImg: displayImg,
     });
   } catch (error) {
     console.error(error);
@@ -897,9 +897,11 @@ app.get("/flats", authenticateToken, async (req, res) => {
       .find({
         hasFlat: true,
         // _id: { $ne: userId }
-        _id: { $nin: excludedUsers } // Exclude specified user IDs
+        _id: { $nin: excludedUsers }, // Exclude specified user IDs
       })
-      .select('name email _id flatImages address occupied capacity name year branch smoke workout drink nonVegetarian googlePicture profileImage') 
+      .select(
+        "name email _id flatImages address occupied capacity name year branch smoke workout drink nonVegetarian googlePicture profileImage"
+      )
       .exec();
     res.status(200).json({ message: "successful", flats });
   } catch (error) {
@@ -910,15 +912,15 @@ app.get("/flats", authenticateToken, async (req, res) => {
 app.post("/dislike-flats", authenticateToken, async (req, res) => {
   try {
     const { userId } = req.user;
-    const {idString}=req.body;
+    const { id } = req.body;
     const user = await userModel.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    const id=new ObjectId(idString)
-    user.excludedFlats.push(id);
-    await user.save()
-    res.status(200).json({ message: "successful"});
+    const idMain = new ObjectId(id);
+    user.excludedFlats.push(idMain);
+    await user.save();
+    res.status(200).json({ message: "successful" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -927,15 +929,15 @@ app.post("/dislike-flats", authenticateToken, async (req, res) => {
 app.post("/dislike-flatmates", authenticateToken, async (req, res) => {
   try {
     const { userId } = req.user;
-    const {idString}=req.body;
+    const { id } = req.body;
     const user = await userModel.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    const id=new ObjectId(idString)
-    user.excludedFlatmates.push(id);
-    await user.save()
-    res.status(200).json({ message: "successful"});
+    const idMain = new ObjectId(id);
+    user.excludedFlatmates.push(idMain);
+    await user.save();
+    res.status(200).json({ message: "successful" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -952,9 +954,11 @@ app.get("/flatmates", authenticateToken, async (req, res) => {
     const flatmates = await userModel
       .find({
         // _id: { $ne: userId }
-        _id: { $nin: excludedUsers } // Exclude specified user IDs
+        _id: { $nin: excludedUsers }, // Exclude specified user IDs
       })
-      .select('name email _id branch year smoke nonVegetarian workout drink googlePicture profileImage displayImg') 
+      .select(
+        "name email _id branch year smoke nonVegetarian workout drink googlePicture profileImage displayImg"
+      )
       .exec();
     res.status(200).json({ message: "successful", flatmates });
   } catch (error) {
