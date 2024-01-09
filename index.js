@@ -219,7 +219,7 @@ passport.use(
             email: profile.emails[0].value,
             googleId: profile.id,
             name: profile.displayName,
-            picture: profile.photos[0].value,
+            googlePicture: profile.photos[0].value,
           });
 
           user = await newUser.save();
@@ -571,7 +571,9 @@ app.get("/user-details", authenticateToken, async (req, res) => {
       branch,
       year,
       gender,
-      picture,
+      nonVegetarian,
+      googlePicture,
+      profileImage,
     } = user;
     // Respond with the user's details
     res.status(200).json({
@@ -582,6 +584,7 @@ app.get("/user-details", authenticateToken, async (req, res) => {
       bio: bio,
       smoke: smoke,
       workout: workout,
+      nonVegetarian: nonVegetarian,
       occupied: occupied,
       furnishingStatus: furnishingStatus,
       address: address,
@@ -591,7 +594,8 @@ app.get("/user-details", authenticateToken, async (req, res) => {
       branch: branch,
       year: year,
       gender: gender,
-      picture: picture,
+      googlePicture: googlePicture,
+      profileImage: profileImage,
     });
   } catch (error) {
     console.error(error);
@@ -714,8 +718,9 @@ app.post(
 
         user.flatImages.push({
           //data: imageBuffer, //website only
-          data:file, // for apps only 
-          contentType: 'image/png',
+          data: file, // for apps only
+          // contentType: req.file.mimetype, // website only
+          contentType: "image/png",
         });
       });
       // Save the user document with the new flatImages
@@ -781,9 +786,7 @@ app.get("/get-flat-image", authenticateToken, async (req, res) => {
     const imageUrls = [];
     for (i = 0; i < user.flatImages.length; i++) {
       // imageUrls.push( `data:${user.flatImages[i].contentType};base64,${user.flatImages[i].data}`) //This is how you upload to a web project
-      imageUrls.push(
-        `${user.flatImages[i].data}`
-      );
+      imageUrls.push(`${user.flatImages[i].data}`);
     }
     // Construct the data URL for the first image
 
@@ -793,6 +796,37 @@ app.get("/get-flat-image", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+app.post(
+  "/upload-profile-image",
+  authenticateToken,
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No image uploaded" });
+      }
+      // const imageBuffer = req.file.buffer.toString("base64"); //only needed in website project
+      const { userId } = req.user;
+      const user = await userModel.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      user.profileImage = {
+        data: req.file,
+        // contentType: req.file.mimetype,
+        contentType: "image/png",
+      };
+
+      await user.save();
+
+      res.status(200).json({ message: " Profile Image uploaded successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
 app.get("/", async (req, res) => {
   res.json({ message: "Working" });
 });

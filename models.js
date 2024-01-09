@@ -105,11 +105,12 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  picture: { //This is the profile picture field
+  googlePicture: {
+    //This is the profile picture field
     type: String,
     default: null,
   },
-  flatImages: [{
+  profileImage: {
     data: {
       type: String, // Storing base64-encoded image data as a string
       default: null,
@@ -118,7 +119,19 @@ const UserSchema = new mongoose.Schema({
       type: String,
       default: null,
     },
-}],
+  },
+  flatImages: [
+    {
+      data: {
+        type: String, // Storing base64-encoded image data as a string
+        default: null,
+      },
+      contentType: {
+        type: String,
+        default: null,
+      },
+    },
+  ],
 });
 
 const User = mongoose.model("User", UserSchema);
