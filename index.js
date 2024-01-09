@@ -7,8 +7,6 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const userModel = require("./models");
-const multer = require("multer");
-const path = require("path");
 const messageModel = require("./message");
 const nodemailer = require("nodemailer");
 const authenticateToken = require("./authenticateToken");
@@ -70,8 +68,6 @@ const generateOTP = () => {
   const otp = Math.floor(100000 + Math.random() * 900000);
   return otp.toString();
 };
-const storage = multer.memoryStorage(); // You can change this to store files on disk if needed
-const upload = multer({ storage: storage });
 app.post("/send-otp", async (req, res) => {
   try {
     const { email } = req.body;
