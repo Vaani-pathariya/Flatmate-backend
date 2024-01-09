@@ -120,6 +120,16 @@ const UserSchema = new mongoose.Schema({
       default: null,
     },
   },
+  displayImg:{
+    data: {
+      type: String, // Storing base64-encoded image data as a string
+      default: null,
+    },
+    contentType: {
+      type: String,
+      default: null,
+    },
+  },
   likes: [
     {
       type: ObjectId,

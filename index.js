@@ -564,6 +564,7 @@ app.get("/user-details", authenticateToken, async (req, res) => {
       rent,
       dob,
       hasFlat,
+      displayImg,
       branch,
       year,
       gender,
@@ -592,6 +593,7 @@ app.get("/user-details", authenticateToken, async (req, res) => {
       gender: gender,
       googlePicture: googlePicture,
       profileImage: profileImage,
+      displayImg:displayImg
     });
   } catch (error) {
     console.error(error);
@@ -818,6 +820,38 @@ app.post(
       await user.save();
 
       res.status(200).json({ message: " Profile Image uploaded successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+app.post(
+  "/upload-display-image",
+  authenticateToken,
+  // upload.single("image"),
+  async (req, res) => {
+    try {
+      const { file } = req.body;
+      if (!file) {
+        return res.status(400).json({ message: "No image uploaded" });
+      }
+      // const imageBuffer = req.file.buffer.toString("base64"); //only needed in website project
+      const { userId } = req.user;
+      const user = await userModel.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      const imageBuffer = Buffer.from(file, "base64");
+      user.displayImg = {
+        data: imageBuffer,
+        // contentType: req.file.mimetype,
+        contentType: "image/png",
+      };
+
+      await user.save();
+
+      res.status(200).json({ message: " Display Image uploaded successfully" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Internal Server Error" });
