@@ -220,6 +220,7 @@ passport.use(
           });
 
           user = await newUser.save();
+          user._isNewUser = true;
         }
 
         done(null, user);
@@ -256,10 +257,11 @@ app.get(
   passport.authenticate("google", { failureRedirect: "/login-failure" }),
   (req, res) => {
     // Redirect to the desired page after successful authentication
+    const isNewUser = req.user._isNewUser || false;
     const token = jwt.sign({ userId: req.user._id }, "your-secret-key", {
       expiresIn: "1h",
     });
-    res.status(200).json({ status: "success", token });
+    res.status(200).json({ status: "success", token,newUser: isNewUser });
   }
 );
 app.get("/login-failure", (req, res) => {
