@@ -204,7 +204,7 @@ passport.use(
       clientID:
         "316208084302-qdp4g6i3nmf8rpo6tdeb23qt5tr6gi9g.apps.googleusercontent.com",
       clientSecret: "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",
-      callbackURL: "https://flatmate-backend.onrender.com/google/callback",
+      callbackURL: "https://flatmate-backend.vercel.app/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
