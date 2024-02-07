@@ -208,9 +208,14 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        let user = await userModel.findOne({ googleId: profile.id });
-
-        if (!user) {
+        let user = await userModel.findOne({ email: profile.emails[0].value });
+        if (user) {
+          // Update user information if email exists
+          user.googleId = profile.id;
+          user.name = user.name || profile.displayName;
+          user.googlePicture = user.googlePicture || profile.photos[0].value;
+        }
+        else {
           // Create a new user if not found
           const newUser = new userModel({
             email: profile.emails[0].value,
