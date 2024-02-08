@@ -158,9 +158,7 @@ app.post("/signup", async (req, res) => {
     });
 
     let user = await newUser.save();
-    const token = jwt.sign({ userId: user._id }, "your-secret-key", {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign({ userId: user._id }, "your-secret-key");
     res.status(201).json({ message: "Signup successful", token: token });
   } catch (error) {
     console.error(error);
@@ -186,9 +184,7 @@ app.post("/login", async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user._id }, "your-secret-key", {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign({ userId: user._id }, "your-secret-key");
 
     res.json({ token: token });
   } catch (error) {
