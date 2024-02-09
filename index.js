@@ -253,7 +253,7 @@ app.get(
   (req, res, next) => {
     // Check if the request is coming from a browser or web view
     const userAgent = req.headers['user-agent'];
-    if (userAgent && userAgent.includes('Mozilla')) {
+    if (userAgent && userAgent.includes('Mozilla') || userAgent.includes('Edge')) {
       next();
     } else {
       res.status(403).json({ error: 'Disallowed user agent' });
