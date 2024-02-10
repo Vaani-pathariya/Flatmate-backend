@@ -9,6 +9,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const userModel = require("./models");
 const messageModel = require("./message");
 const nodemailer = require("nodemailer");
+require("dotenv").config();
 const authenticateToken = require("./authenticateToken");
 const http = require("http");
 const socketIO = require("socket.io");
@@ -39,7 +40,7 @@ const port = 8000;
 app.use(cors());
 
 mongoose.connect(
-  "mongodb+srv://vaani:vaani@cluster0.b5sf2hj.mongodb.net/Flatmate?retryWrites=true&w=majority",
+  process.env.MONGO_URI,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
