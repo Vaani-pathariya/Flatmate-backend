@@ -25,7 +25,7 @@ const io = socketIO(server, {
       if (!origin) return callback(null, true);
 
       // Check if the origin is allowed
-      const allowedOrigins = ["http://localhost:3000"];
+      const allowedOrigins = [process.env.LOCAL_PORT];
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -91,8 +91,8 @@ app.post("/send-otp", async (req, res) => {
     let transporter = await nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "vpathariya2111@gmail.com",
-        pass: "dhlbjpwvhyhtrcuc",
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASSWORD,
       },
     });
     // Send OTP to the provided email (using Nodemailer, for example)
@@ -199,9 +199,9 @@ passport.use(
   new GoogleStrategy(
     {
       clientID:
-        "316208084302-qdp4g6i3nmf8rpo6tdeb23qt5tr6gi9g.apps.googleusercontent.com",
-      clientSecret: "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",
-      callbackURL: "https://flatmate-backend.vercel.app/google/callback",
+        process.env.clientID,
+      clientSecret: process.env.clientSecret,
+      callbackURL: process.env.callbackURL,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
