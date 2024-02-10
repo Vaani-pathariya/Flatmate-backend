@@ -6,8 +6,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 // const passport = require("passport"); --------------> Use for web app authentication
 // const GoogleStrategy = require("passport-google-oauth20").Strategy; ------------> Use for web app authentication
-const userModel = require("./models");
-const messageModel = require("./message");
+const userModel = require("./models/user");
+const messageModel = require("./models/message");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 const authenticateToken = require("./authenticateToken");
