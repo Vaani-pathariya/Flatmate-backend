@@ -17,7 +17,7 @@ const app = express();
 const server = http.createServer(app);
 const { ObjectId } = require("mongodb");
 const { OAuth2Client } = require("google-auth-library");
-const client = new OAuth2Client("YOUR_GOOGLE_CLIENT_ID");
+const client = new OAuth2Client(process.env.clientIDApp);
 // The read field in messages refers to whether the message has been read by the receiver or not , since the message is obviously read by the sender
 const io = socketIO(server, {
   cors: {
@@ -143,7 +143,7 @@ app.post("/google-auth", async (req, res) => {
   try {
     const ticket = await client.verifyIdToken({
       idToken,
-      audience: "YOUR_GOOGLE_CLIENT_ID", // Should match your Android app's client ID
+      audience: process.env.clientIDApp, // Should match your Android app's client ID
     });
     const payload = ticket.getPayload();
     let user = await userModel.findOne({ email: payload.email });
@@ -156,10 +156,10 @@ app.post("/google-auth", async (req, res) => {
     } else {
       // Create a new user if not found
       const newUser = new userModel({
-        email: profile.emails[0].value,
-        googleId: profile.id,
-        name: profile.displayName,
-        googlePicture: profile.photos[0].value,
+        email: payload.email,
+        googleId: payload.sub,
+        name: payload.name,
+        googlePicture: payload.picture,
       });
 
       user = await newUser.save();
