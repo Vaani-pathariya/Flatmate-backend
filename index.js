@@ -4,8 +4,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
+// const passport = require("passport"); --------------> Use for web app authentication
+// const GoogleStrategy = require("passport-google-oauth20").Strategy; ------------> Use for web app authentication
 const userModel = require("./models");
 const messageModel = require("./message");
 const nodemailer = require("nodemailer");
@@ -56,15 +56,15 @@ db.once("open", function () {
 // Configuring body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: '10mb' })); 
-app.use(
-  require("express-session")({
-    secret: "your-secret-key",
-    resave: true,
-    saveUninitialized: true,
-  })
-);
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(
+//   require("express-session")({
+//     secret: "your-secret-key",
+//     resave: true,
+//     saveUninitialized: true,
+//   })
+// );
+// app.use(passport.initialize());  -------------> Use for web app authentication
+// app.use(passport.session());  -------------> Use for web app authentication
 const otpStorage = new Map();
 const generateOTP = () => {
   const otp = Math.floor(100000 + Math.random() * 900000);
@@ -194,83 +194,84 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Google OAuth 2.0 configuration
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID:
-        process.env.clientID,
-      clientSecret: process.env.clientSecret,
-      callbackURL: process.env.callbackURL,
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        let user = await userModel.findOne({ email: profile.emails[0].value });
-        if (user) {
-          // Update user information if email exists
-          user.googleId = profile.id;
-          user.name = user.name || profile.displayName;
-          user.googlePicture = user.googlePicture || profile.photos[0].value;
-        }
-        else {
-          // Create a new user if not found
-          const newUser = new userModel({
-            email: profile.emails[0].value,
-            googleId: profile.id,
-            name: profile.displayName,
-            googlePicture: profile.photos[0].value,
-          });
+// Google OAuth 2.0 configuration for web based applications -----------------> From here
+// passport.use(
+//   new GoogleStrategy(
+//     {
+//       clientID:
+//         process.env.clientID,
+//       clientSecret: process.env.clientSecret,
+//       callbackURL: process.env.callbackURL,
+//     },
+//     async (accessToken, refreshToken, profile, done) => {
+//       try {
+//         let user = await userModel.findOne({ email: profile.emails[0].value });
+//         if (user) {
+//           // Update user information if email exists
+//           user.googleId = profile.id;
+//           user.name = user.name || profile.displayName;
+//           user.googlePicture = user.googlePicture || profile.photos[0].value;
+//         }
+//         else {
+//           // Create a new user if not found
+//           const newUser = new userModel({
+//             email: profile.emails[0].value,
+//             googleId: profile.id,
+//             name: profile.displayName,
+//             googlePicture: profile.photos[0].value,
+//           });
 
-          user = await newUser.save();
-          user._isNewUser = true;
-        }
+//           user = await newUser.save();
+//           user._isNewUser = true;
+//         }
 
-        done(null, user);
-      } catch (err) {
-        done(err);
-      }
-    }
-  )
-);
+//         done(null, user);
+//       } catch (err) {
+//         done(err);
+//       }
+//     }
+//   )
+// );
 
-// Serialize and deserialize user
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
+// // Serialize and deserialize user
+// passport.serializeUser((user, done) => {
+//   done(null, user.id);
+// });
 
-passport.deserializeUser((id, done) => {
-  userModel
-    .findById(id)
-    .then((user) => {
-      done(null, user);
-    })
-    .catch((err) => {
-      done(err);
-    });
-});
-// Google authentication routes
-app.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+// passport.deserializeUser((id, done) => {
+//   userModel
+//     .findById(id)
+//     .then((user) => {
+//       done(null, user);
+//     })
+//     .catch((err) => {
+//       done(err);
+//     });
+// });
+// // Google authentication routes
+// app.get(
+//   "/google",
+//   passport.authenticate("google", { scope: ["profile", "email"] })
+// );
 
-app.get(
-  "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login-failure" }),
-  (req, res) => {
-    // Redirect to the desired page after successful authentication
-    const isNewUser = req.user._isNewUser || false;
-    const token = jwt.sign({ userId: req.user._id }, "your-secret-key", {
-      expiresIn: "1h",
-    });
-    res.status(200).json({ status: "success", token,newUser: isNewUser });
-  }
-);
-app.get("/login-failure", (req, res) => {
-  res
-    .status(401)
-    .json({ status: "failure", message: "Google authentication failed" });
-});
+// app.get(
+//   "/google/callback",
+//   passport.authenticate("google", { failureRedirect: "/login-failure" }),
+//   (req, res) => {
+//     // Redirect to the desired page after successful authentication
+//     const isNewUser = req.user._isNewUser || false;
+//     const token = jwt.sign({ userId: req.user._id }, "your-secret-key", {
+//       expiresIn: "1h",
+//     });
+//     res.status(200).json({ status: "success", token,newUser: isNewUser });
+//   }
+// );
+// app.get("/login-failure", (req, res) => {
+//   res
+//     .status(401)
+//     .json({ status: "failure", message: "Google authentication failed" });
+// });
+//---------------------------------------------------------------------------------------> To here 
 app.post("/store-name", authenticateToken, async (req, res) => {
   try {
     const { name } = req.body;
@@ -742,17 +743,6 @@ app.delete("/delete-user", authenticateToken, async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-});
-app.post("/logout", (req, res) => {
-  req.logout(); // Assuming you are using passport for authentication
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("Error destroying session:", err);
-      res.status(500).json({ message: "Internal Server Error" });
-    } else {
-      res.status(200).json({ message: "Logout successful" });
-    }
-  });
 });
 app.post(
   "/upload-flat-images",
