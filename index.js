@@ -16,7 +16,8 @@ const socketIO = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 const { ObjectId } = require("mongodb");
-//Maybe I'll try with paging after some time , but as of now , It's at a good place !
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client("YOUR_GOOGLE_CLIENT_ID");
 // The read field in messages refers to whether the message has been read by the receiver or not , since the message is obviously read by the sender
 const io = socketIO(server, {
   cors: {
@@ -39,13 +40,10 @@ const io = socketIO(server, {
 const port = 8000;
 app.use(cors());
 
-mongoose.connect(
-  process.env.MONGO_URI,
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error: "));
@@ -55,7 +53,7 @@ db.once("open", function () {
 
 // Configuring body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json({ limit: '10mb' })); 
+app.use(bodyParser.json({ limit: "10mb" }));
 // app.use(
 //   require("express-session")({
 //     secret: "your-secret-key",
@@ -137,6 +135,41 @@ app.post("/verify-otp", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+app.post("/google-auth", async (req, res) => {
+  const { idToken } = req.body;
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: "YOUR_GOOGLE_CLIENT_ID", // Should match your Android app's client ID
+    });
+    const payload = ticket.getPayload();
+    let user = await userModel.findOne({ email: payload.email });
+    let newUser = false;
+    if (user) {
+      // Update user information if email exists
+      user.googleId = user.googleId || payload.sub;
+      user.name = user.name || payload.name;
+      user.googlePicture = user.googlePicture || payload.picture;
+    } else {
+      // Create a new user if not found
+      const newUser = new userModel({
+        email: profile.emails[0].value,
+        googleId: profile.id,
+        name: profile.displayName,
+        googlePicture: profile.photos[0].value,
+      });
+
+      user = await newUser.save();
+      newUser = true;
+    }
+    const token = jwt.sign({ userId: user._id }, "your-secret-key");
+    res.status(200).send({ success: true, token , newUser});
+  } catch (error) {
+    console.error("Error verifying Google token:", error);
+    res.status(401).send({ success: false, error: "Unauthorized" });
   }
 });
 app.post("/signup", async (req, res) => {
@@ -271,7 +304,7 @@ app.post("/login", async (req, res) => {
 //     .status(401)
 //     .json({ status: "failure", message: "Google authentication failed" });
 // });
-//---------------------------------------------------------------------------------------> To here 
+//---------------------------------------------------------------------------------------> To here
 app.post("/store-name", authenticateToken, async (req, res) => {
   try {
     const { name } = req.body;
@@ -438,7 +471,7 @@ app.post(
     }
   }
 );
-// The following route needs changes 
+// The following route needs changes
 // app.post("/update-user-info", authenticateToken, async (req, res) => {
 //   try {
 //     const {
