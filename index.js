@@ -251,15 +251,6 @@ passport.deserializeUser((id, done) => {
 // Google authentication routes
 app.get(
   "/google",
-  (req, res, next) => {
-    // Check if the request is coming from a browser or web view
-    const userAgent = req.headers['user-agent'];
-    if (userAgent && userAgent.includes('Mozilla') || userAgent.includes('Edge')) {
-      next();
-    } else {
-      res.status(403).json({ error: 'Disallowed user agent' });
-    }
-  },
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
@@ -446,67 +437,68 @@ app.post(
     }
   }
 );
-app.post("/update-user-info", authenticateToken, async (req, res) => {
-  try {
-    const {
-      name,
-      email,
-      capacity,
-      drink,
-      bio,
-      smoke,
-      workout,
-      occupied,
-      furnishingStatus,
-      address,
-      rent,
-      dob,
-      hasFlat,
-      displayImg,
-      branch,
-      year,
-      gender,
-      nonVegetarian,
-      googlePicture,
-      profileImage,
-    } = req.body;
-    const { userId } = req.user;
+// The following route needs changes 
+// app.post("/update-user-info", authenticateToken, async (req, res) => {
+//   try {
+//     const {
+//       name,
+//       email,
+//       capacity,
+//       drink,
+//       bio,
+//       smoke,
+//       workout,
+//       occupied,
+//       furnishingStatus,
+//       address,
+//       rent,
+//       dob,
+//       hasFlat,
+//       displayImg,
+//       branch,
+//       year,
+//       gender,
+//       nonVegetarian,
+//       googlePicture,
+//       profileImage,
+//     } = req.body;
+//     const { userId } = req.user;
 
-    const user = await userModel.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+//     const user = await userModel.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
 
-    // Update the user's information
-    if (name) user.name = name;
-    if (email) user.email = email;
-    if (capacity) user.capacity = capacity;
-    if (drink) user.drink = drink;
-    if (bio) user.bio = bio;
-    if (smoke) user.smoke = smoke;
-    if (workout) user.workout = workout;
-    if (occupied) user.occupied = occupied;
-    if (furnishingStatus) user.furnishingStatus = furnishingStatus;
-    if (address) user.address = address;
-    if (rent) user.rent = rent;
-    if (dob) user.dob = dob;
-    if (hasFlat) user.hasFlat = hasFlat;
-    if (displayImg) user.displayImg = displayImg;
-    if (branch) user.branch = branch;
-    if (year) user.year = year;
-    if (gender) user.gender = gender;
-    if (nonVegetarian) user.nonVegetarian = nonVegetarian;
-    if (googlePicture) user.googlePicture = googlePicture;
-    if (profileImage) user.profileImage = profileImage;
+//     // Update the user's information
+//     if (name) user.name = name;
+//     if (email) user.email = email;
+//     if (capacity) user.capacity = capacity;
+//     if (drink) user.drink = drink;
+//     if (bio) user.bio = bio;
+//     if (smoke) user.smoke = smoke;
+//     if (workout) user.workout = workout;
+//     if (occupied) user.occupied = occupied;
+//     if (furnishingStatus) user.furnishingStatus = furnishingStatus;
+//     if (address) user.address = address;
+//     if (rent) user.rent = rent;
+//     if (dob) user.dob = dob;
+//     if (hasFlat) user.hasFlat = hasFlat;
+//     if (displayImg) user.displayImg = displayImg;
+//     if (branch) user.branch = branch;
+//     if (year) user.year = year;
+//     if (gender) user.gender = gender;
+//     if (nonVegetarian) user.nonVegetarian = nonVegetarian;
+//     if (googlePicture) user.googlePicture = googlePicture;
+//     if (profileImage) user.profileImage = profileImage;
 
-    await user.save();
+//     await user.save();
 
-    res.status(200).json({ message: "User information updated successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
+//     res.status(200).json({ message: "User information updated successfully" });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// });
 app.post("/store-lifestyle", authenticateToken, async (req, res) => {
   try {
     const { drink, smoke, workout, nonVegetarian } = req.body;
