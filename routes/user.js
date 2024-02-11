@@ -25,7 +25,6 @@ const {
   messageAccess,
   deleteUser,
   uploadFlatImages,
-  getFlatImages,
   profileImage,
   displayImage,
   addLike,
@@ -38,13 +37,9 @@ const {
 } = require("../controllers/user");
 
 router.post("/send-otp", sendOtp);
-
-// Route to verify OTP and complete signup
 router.post("/verify-otp", verifyOtp);
 router.post("/google-auth", googleAppAuthentication);
 router.post("/signup", signup);
-
-// Login Route
 router.post("/login", login);
 
 // // Google authentication routes for web based authentication
@@ -58,12 +53,7 @@ router.post("/store-gender", authenticateToken, storeGender);
 router.post("/store-branch-year", authenticateToken, storeBranchYear);
 router.post("/store-flat-status", authenticateToken, storeFlatStatus);
 router.post("/store-address-rent", authenticateToken, storeAddressRent);
-router.post(
-  "/store-furnishing-status-cap-occ",
-  authenticateToken,
-  furnishingStatus
-);
-// The following route needs changes
+router.post("/store-furnishing-status-cap-occ",authenticateToken,furnishingStatus);
 router.post("/update-user-info", authenticateToken, updateTextValues);
 router.post("/store-lifestyle", authenticateToken, storeLifestyle);
 router.post("/store-bio", authenticateToken, storeBio);
