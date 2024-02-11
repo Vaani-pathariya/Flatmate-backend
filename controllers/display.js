@@ -16,7 +16,7 @@ const getFlats = async (req, res) => {
         _id: { $nin: excludedUsers }, // Exclude specified user IDs
       })
       .select(
-        "name email _id flatImages address occupied capacity name year branch smoke workout drink nonVegetarian googlePicture profileImage rent"
+        "name email _id flatImages address occupied capacity bhk name year branch smoke workout drink nonVegetarian googlePicture profileImage rent"
       )
       .exec();
     res.status(200).json({ message: "successful", flats });
