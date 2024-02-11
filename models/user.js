@@ -128,7 +128,7 @@ const UserSchema = new mongoose.Schema({
   ],
   profileImage: {
     data: {
-      type: String, // Storing base64-encoded image data as a string
+      type: Buffer, 
       default: null,
     },
     contentType: {
@@ -138,7 +138,7 @@ const UserSchema = new mongoose.Schema({
   },
   displayImg:{
     data: {
-      type: String, // Storing base64-encoded image data as a string
+      type: Buffer, 
       default: null,
     },
     contentType: {

@@ -634,7 +634,7 @@ const uploadFlatImages=async(req,res)=>{
     files.forEach((file) => {
       user.flatImages.push({
         data: file.buffer.toString("base64"),
-        contentType: "image/png",
+        contentType: file.mimetype,
       });
     });
 
