@@ -75,7 +75,7 @@ router.get("/messages-access", authenticateToken, messageAccess);
 router.delete("/delete-user", authenticateToken, deleteUser);
 router.post("/upload-flat-images", authenticateToken,upload.array("images", 4), uploadFlatImages);
 // router.post( "/upload-single-image",authenticateToken,upload.single("image"),uploadSingleImage);
-router.get("/get-flat-image", authenticateToken, getFlatImages);
+router.get("/get-flat-images", authenticateToken, getFlatImages);
 router.post(
   "/upload-profile-image",
   authenticateToken,
