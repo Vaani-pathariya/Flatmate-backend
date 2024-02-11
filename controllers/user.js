@@ -429,7 +429,7 @@ const storeLifestyle = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    // Update the user's furnishing status
+    // Update the user's Lifestyle
     user.drink = drink;
     user.smoke = smoke;
     user.workout = workout;
