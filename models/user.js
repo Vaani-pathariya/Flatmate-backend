@@ -151,7 +151,7 @@ const UserSchema = new mongoose.Schema({
   flatImages: [
     {
       data: {
-        type: String, // Storing base64-encoded image data as a string
+        type: Buffer, 
         default: null,
       },
       contentType: {

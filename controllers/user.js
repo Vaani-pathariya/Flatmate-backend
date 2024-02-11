@@ -611,76 +611,40 @@ const deleteUser=async(req,res)=>{
       }
 }
 const uploadFlatImages=async(req,res)=>{
-    try {
-        const { files } = req.body;
-  
-        if (!files || files.length === 0) {
-          return res.status(400).json({ message: "No images uploaded" });
-        }
-  
-        const { userId } = req.user;
-        const user = await userModel.findById(userId);
-  
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        if (files.length > 4) {
-          return res
-            .status(404)
-            .json({ message: "You can only upload upto 4 images" });
-        }
-        user.flatImages = [];
-        files.forEach((file) => {
-          // const imageBuffer = file.buffer.toString("base64"); //will be used in website only
-          const imageBuffer = Buffer.from(file, "base64");
-          user.flatImages.push({
-            //data: imageBuffer, //website only
-            data: imageBuffer, // for apps only
-            // contentType: req.file.mimetype, // website only
-            contentType: "image/png",
-          });
-        });
-        // Save the user document with the new flatImages
-        await user.save();
-  
-        res.status(200).json({ message: "Images uploaded successfully" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
+  try {
+    const files = req.files;
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ message: "No images uploaded" });
+    }
+
+    const { userId } = req.user;
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (files.length > 4) {
+      return res.status(404).json({ message: "You can only upload up to 4 images" });
+    }
+
+    user.flatImages = [];
+    files.forEach((file) => {
+      user.flatImages.push({
+        data: file.buffer.toString("base64"),
+        contentType: "image/png",
+      });
+    });
+
+    await user.save();
+
+    res.status(200).json({ message: "Images uploaded successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
-// const uploadSingleImage=async(req,res)=>{
-//     try {
-        //       const { file, index } = req;
-        //       if (!file || index === undefined) {
-        //         return res.status(400).json({ message: "No image or index provided" });
-        //       }
-        
-        //       const { userId } = req.user;
-        //       const user = await userModel.findById(userId);
-        
-        //       if (!user) {
-        //         return res.status(404).json({ message: "User not found" });
-        //       }
-        //       if (index < 0 || index >= user.flatImages.length) {
-        //         return res.status(400).json({ message: "Invalid index provided" });
-        //       }
-        //       const imageBuffer = file.buffer.toString("base64");
-        
-        //       user.flatImages[index]({
-        //         data: imageBuffer,
-        //         contentType: file.mimetype,
-        //       });
-        
-        //       // Save the user document with the new flatImages
-        //       await user.save();
-        
-        //       res.status(200).json({ message: "Image uploaded successfully" });
-        //     } catch (error) {
-        //       console.error(error);
-        //       res.status(500).json({ message: "Internal Server Error" });
-        //     }
-//}
 const getFlatImages=async(req,res)=>{
     try {
         const { userId } = req.user;
@@ -696,8 +660,7 @@ const getFlatImages=async(req,res)=>{
         // Retrieve the first image from the flatImages array
         const imageUrls = [];
         for (i = 0; i < user.flatImages.length; i++) {
-          // imageUrls.push( `data:${user.flatImages[i].contentType};base64,${user.flatImages[i].data}`) //This is how you upload to a web project
-          imageUrls.push(`${user.flatImages[i].data}`);
+          imageUrls.push( `data:${user.flatImages[i].contentType};base64,${user.flatImages[i].data}`) //This is how you upload to a web project
         }
         // Construct the data URL for the first image
     

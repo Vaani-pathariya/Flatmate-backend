@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const { authenticateToken } = require("../middlewares");
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 const {
   sendOtp,
   verifyOtp,
@@ -70,7 +73,7 @@ router.get("/user-details", authenticateToken, getUserDetails);
 router.get("/messages-access", authenticateToken, messageAccess);
 
 router.delete("/delete-user", authenticateToken, deleteUser);
-router.post("/upload-flat-images", authenticateToken, uploadFlatImages);
+router.post("/upload-flat-images", authenticateToken,upload.array("images", 4), uploadFlatImages);
 // router.post( "/upload-single-image",authenticateToken,upload.single("image"),uploadSingleImage);
 router.get("/get-flat-image", authenticateToken, getFlatImages);
 router.post(
