@@ -311,7 +311,7 @@ const storeAddressRent = async (req, res) => {
 };
 const furnishingStatus = async (req, res) => {
   try {
-    const { furnishingStatus, capacity, occupied } = req.body;
+    const { furnishingStatus, capacity, occupied , bhk } = req.body;
     const { userId } = req.user;
 
     const user = await userModel.findById(userId);
@@ -322,6 +322,7 @@ const furnishingStatus = async (req, res) => {
     user.furnishingStatus = furnishingStatus;
     user.capacity = capacity;
     user.occupied = occupied;
+    user.bhk=bhk;
     await user.save();
 
     res.status(200).json({ message: "Furnishing status stored successfully" });

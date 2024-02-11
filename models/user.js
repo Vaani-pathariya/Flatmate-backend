@@ -37,6 +37,10 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: null,
   },
+  bhk:{
+    type: Number,
+    default:null,
+  },
   furnishingStatus: {
     type: String,
     enum: ["semiFurnished", "fullyFurnished", "nonFurnished"],
