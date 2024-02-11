@@ -6,7 +6,9 @@ const getFlats = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    const likedByUserIds = await userModel.find({ likes: userId }).distinct('_id');
     const excludedUsers = [...user.excludedFlats, userId];
+    excludedUsers.push(...likedByUserIds);
     const flats = await userModel
       .find({
         hasFlat: true,
