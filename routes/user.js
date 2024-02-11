@@ -34,6 +34,7 @@ const {
   verifyForgotPasswordOtp,
   forgotPassword,
   updateTextValues,
+  updateImageData,
 } = require("../controllers/user");
 
 router.post("/send-otp", sendOtp);
@@ -55,6 +56,11 @@ router.post("/store-flat-status", authenticateToken, storeFlatStatus);
 router.post("/store-address-rent", authenticateToken, storeAddressRent);
 router.post("/store-furnishing-status-cap-occ",authenticateToken,furnishingStatus);
 router.post("/update-user-info", authenticateToken, updateTextValues);
+router.post("/update-image-data",authenticateToken,upload.fields([
+  { name: 'profileImage', maxCount: 1 }, // Upload one profile image
+  { name: 'displayImg', maxCount: 1 }, // Upload one display image
+  { name: 'FlatImages', maxCount: 4 } // Upload up to 4 flat images 
+]), updateImageData);
 router.post("/store-lifestyle", authenticateToken, storeLifestyle);
 router.post("/store-bio", authenticateToken, storeBio);
 router.post("/read-messages", authenticateToken, readMessages);

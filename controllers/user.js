@@ -377,6 +377,49 @@ const updateTextValues = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+const updateImageData=async(req,res)=>{
+  try {
+    const { userId } = req.user;
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Handle profile image upload
+    if (req.files['profileImage']) {
+      const profileImage = req.files['profileImage'][0];
+      user.profileImage = {
+        data: profileImage.buffer,
+        contentType: profileImage.mimetype,
+      };
+    }
+
+    // Handle display image upload
+    if (req.files['displayImg']) {
+      const displayImg = req.files['displayImg'][0];
+      user.displayImg = {
+        data: displayImg.buffer,
+        contentType: displayImg.mimetype,
+      };
+    }
+
+    // Handle flat images upload
+    if (req.files['FlatImages']) {
+      const flatImages = req.files['FlatImages'];
+      user.flatImages = flatImages.map(image => ({
+        data: image.buffer,
+        contentType: image.mimetype,
+      }));
+    }
+
+    await user.save();
+
+    res.status(200).json({ message: "Images uploaded successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
 const storeLifestyle = async (req, res) => {
   try {
     const { drink, smoke, workout, nonVegetarian } = req.body;
@@ -902,4 +945,5 @@ module.exports = {
   forgotPasswordOtpSend,
   verifyForgotPasswordOtp,
   forgotPassword,
+  updateImageData
 };
