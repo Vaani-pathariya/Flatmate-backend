@@ -534,17 +534,17 @@ const getUserDetails = async (req, res) => {
       nonVegetarian,
       googlePicture,
     } = user;
-    const imageUrls = [];
+    let imageUrls = [];
     for (i = 0; i < user.flatImages.length; i++) {
       imageUrls.push(
         `data:${user.flatImages[i].contentType};base64,${user.flatImages[i].data}`
       ); 
     }
-    const profile=null;
+    let profile=null;
     if (user.profileImage){
       profile=`data:${user.profileImage.contentType};base64,${user.profileImage.data}`
     }
-    const display=null;
+    let display=null;
     if (user.displayImg){
       display=`data:${user.displayImg.contentType};base64,${user.displayImg.data}`
     }
