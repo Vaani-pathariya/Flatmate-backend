@@ -12,6 +12,7 @@ const getFlats = async (req, res) => {
         hasFlat: true,
         // _id: { $ne: userId }
         _id: { $nin: excludedUsers }, // Exclude specified user IDs
+        _id:  { $nin: likes } // Exclude the already liked user IDs
       })
       .select(
         "name email _id flatImages address occupied capacity name year branch smoke workout drink nonVegetarian googlePicture profileImage rent"

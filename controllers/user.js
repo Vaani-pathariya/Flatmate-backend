@@ -332,7 +332,7 @@ const furnishingStatus = async (req, res) => {
 // const updateValues = async (req, res) => {
 //   try {
 //     const {
-//       name,
+//       name, //
 //       email,
 //       capacity,
 //       drink,
@@ -344,10 +344,10 @@ const furnishingStatus = async (req, res) => {
 //       address,
 //       rent,
 //       dob,
-//       hasFlat,
+//       hasFlat, //
 //       displayImg,
-//       branch,
-//       year,
+//       branch, //
+//       year, //
 //       gender,
 //       nonVegetarian,
 //       googlePicture,
@@ -361,7 +361,7 @@ const furnishingStatus = async (req, res) => {
 //     }
 
 //     // Update the user's information
-//     if (name) user.name = name;
+//     if (name!=null) user.name = name;
 //     if (email) user.email = email;
 //     if (capacity) user.capacity = capacity;
 //     if (drink) user.drink = drink;
