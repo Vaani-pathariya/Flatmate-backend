@@ -311,7 +311,7 @@ const storeAddressRent = async (req, res) => {
 };
 const furnishingStatus = async (req, res) => {
   try {
-    const { furnishingStatus, capacity, occupied , bhk } = req.body;
+    const { furnishingStatus, capacity, occupied, bhk } = req.body;
     const { userId } = req.user;
 
     const user = await userModel.findById(userId);
@@ -322,7 +322,7 @@ const furnishingStatus = async (req, res) => {
     user.furnishingStatus = furnishingStatus;
     user.capacity = capacity;
     user.occupied = occupied;
-    user.bhk=bhk;
+    user.bhk = bhk;
     await user.save();
 
     res.status(200).json({ message: "Furnishing status stored successfully" });
@@ -392,226 +392,228 @@ const furnishingStatus = async (req, res) => {
 //     res.status(500).json({ message: "Internal Server Error" });
 //   }
 // };
-const storeLifestyle=async(req,res)=>{
-    try {
-        const { drink, smoke, workout, nonVegetarian } = req.body;
-        const { userId } = req.user;
-    
-        const user = await userModel.findById(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        // Update the user's furnishing status
-        user.drink = drink;
-        user.smoke = smoke;
-        user.workout = workout;
-        user.nonVegetarian = nonVegetarian;
-        await user.save();
-    
-        res.status(200).json({ message: "Lifestyle status stored successfully" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const storeBio=async(req,res)=>{
-    try {
-        const { bio } = req.body;
-        const { userId } = req.user;
-    
-        const user = await userModel.findById(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-    
-        // Update the user's bio
-        user.bio = bio;
-        await user.save();
-    
-        res.status(200).json({ message: "Bio stored successfully" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const readMessages=async(req,res)=>{
-    try {
-        const { user2IdString } = req.body;
-        const { userId } = req.user;
-        const userId2 = new ObjectId(user2IdString);
-        const messages = await messageModel
-          .find({
+const storeLifestyle = async (req, res) => {
+  try {
+    const { drink, smoke, workout, nonVegetarian } = req.body;
+    const { userId } = req.user;
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Update the user's furnishing status
+    user.drink = drink;
+    user.smoke = smoke;
+    user.workout = workout;
+    user.nonVegetarian = nonVegetarian;
+    await user.save();
+
+    res.status(200).json({ message: "Lifestyle status stored successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const storeBio = async (req, res) => {
+  try {
+    const { bio } = req.body;
+    const { userId } = req.user;
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update the user's bio
+    user.bio = bio;
+    await user.save();
+
+    res.status(200).json({ message: "Bio stored successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const readMessages = async (req, res) => {
+  try {
+    const { user2IdString } = req.body;
+    const { userId } = req.user;
+    const userId2 = new ObjectId(user2IdString);
+    const messages = await messageModel
+      .find({
+        $or: [
+          { sender: userId, receiver: userId2 },
+          { sender: userId2, receiver: userId },
+        ],
+        read: true,
+      })
+      .sort({ timestamp: -1 }); // Sort by timestamp in ascending order (earliest to oldest)
+
+    res.status(200).json({ message: "successful", messages });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const unreadMessages = async (req, res) => {
+  try {
+    const { user2IdString } = req.body;
+    const { userId } = req.user;
+    const userId2 = new ObjectId(user2IdString);
+    const messages = await messageModel
+      .find({
+        $or: [
+          { sender: userId, receiver: userId2 },
+          { sender: userId2, receiver: userId },
+        ],
+        read: false,
+      })
+      .sort({ timestamp: 1 }); // Sort by timestamp in ascending order (earliest to oldest)
+
+    res.status(200).json({ message: "successful", messages });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const getUserDetails = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    // Find the user by userId
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const {
+      name,
+      email,
+      capacity,
+      drink,
+      bio,
+      smoke,
+      workout,
+      occupied,
+      furnishingStatus,
+      address,
+      rent,
+      dob,
+      hasFlat,
+      displayImg,
+      branch,
+      year,
+      gender,
+      nonVegetarian,
+      googlePicture,
+      profileImage,
+    } = user;
+    // Respond with the user's details
+    res.status(200).json({
+      name: name,
+      email: email,
+      capacity: capacity,
+      drink: drink,
+      bio: bio,
+      smoke: smoke,
+      workout: workout,
+      nonVegetarian: nonVegetarian,
+      occupied: occupied,
+      furnishingStatus: furnishingStatus,
+      address: address,
+      rent: rent,
+      dob: dob,
+      hasFlat: hasFlat,
+      branch: branch,
+      year: year,
+      gender: gender,
+      googlePicture: googlePicture,
+      profileImage: profileImage,
+      displayImg: displayImg,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const messageAccess = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    // Find the user by userId
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Find unique users messaged by the current user
+    const messages = await messageModel.find({
+      $or: [{ sender: userId }, { receiver: userId }],
+    });
+
+    // Extract unique user IDs from the messages
+    const uniqueUserIds = Array.from(
+      new Set([
+        ...messages.map((message) => message.sender.toString()),
+        ...messages.map((message) => message.receiver.toString()),
+      ])
+    );
+
+    // Fetch user details for the unique user IDs
+    const uniqueUsers = await Promise.all(
+      uniqueUserIds.map(async (uniqueUserId) => {
+        const userDetails = await userModel
+          .findById(uniqueUserId)
+          .select("email _id");
+        const latestMessage = await messageModel
+          .findOne({
             $or: [
-              { sender: userId, receiver: userId2 },
-              { sender: userId2, receiver: userId },
+              { sender: userId, receiver: uniqueUserId },
+              { sender: uniqueUserId, receiver: userId },
             ],
-            read: true,
           })
-          .sort({ timestamp: -1 }); // Sort by timestamp in ascending order (earliest to oldest)
-    
-        res.status(200).json({ message: "successful", messages });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const unreadMessages=async(req,res)=>{
-    try {
-        const { user2IdString } = req.body;
-        const { userId } = req.user;
-        const userId2 = new ObjectId(user2IdString);
-        const messages = await messageModel
-          .find({
-            $or: [
-              { sender: userId, receiver: userId2 },
-              { sender: userId2, receiver: userId },
-            ],
-            read: false,
-          })
-          .sort({ timestamp: 1 }); // Sort by timestamp in ascending order (earliest to oldest)
-    
-        res.status(200).json({ message: "successful", messages });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const getUserDetails =async(req,res)=>{
-    try {
-        const { userId } = req.user;
-    
-        // Find the user by userId
-        const user = await userModel.findById(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        const {
-          name,
-          email,
-          capacity,
-          drink,
-          bio,
-          smoke,
-          workout,
-          occupied,
-          furnishingStatus,
-          address,
-          rent,
-          dob,
-          hasFlat,
-          displayImg,
-          branch,
-          year,
-          gender,
-          nonVegetarian,
-          googlePicture,
-          profileImage,
-        } = user;
-        // Respond with the user's details
-        res.status(200).json({
-          name: name,
-          email: email,
-          capacity: capacity,
-          drink: drink,
-          bio: bio,
-          smoke: smoke,
-          workout: workout,
-          nonVegetarian: nonVegetarian,
-          occupied: occupied,
-          furnishingStatus: furnishingStatus,
-          address: address,
-          rent: rent,
-          dob: dob,
-          hasFlat: hasFlat,
-          branch: branch,
-          year: year,
-          gender: gender,
-          googlePicture: googlePicture,
-          profileImage: profileImage,
-          displayImg: displayImg,
-        });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const messageAccess=async(req,res)=>{
-    try {
-        const { userId } = req.user;
-    
-        // Find the user by userId
-        const user = await userModel.findById(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-    
-        // Find unique users messaged by the current user
-        const messages = await messageModel.find({
-          $or: [{ sender: userId }, { receiver: userId }],
-        });
-    
-        // Extract unique user IDs from the messages
-        const uniqueUserIds = Array.from(
-          new Set([
-            ...messages.map((message) => message.sender.toString()),
-            ...messages.map((message) => message.receiver.toString()),
-          ])
-        );
-    
-        // Fetch user details for the unique user IDs
-        const uniqueUsers = await Promise.all(
-          uniqueUserIds.map(async (uniqueUserId) => {
-            const userDetails = await userModel
-              .findById(uniqueUserId)
-              .select("email _id");
-            const latestMessage = await messageModel
-              .findOne({
-                $or: [
-                  { sender: userId, receiver: uniqueUserId },
-                  { sender: uniqueUserId, receiver: userId },
-                ],
-              })
-              .sort({ timestamp: -1 })
-              .limit(1);
-    
-            return {
-              ...userDetails.toObject(),
-              latestMessage: latestMessage || null,
-            };
-          })
-        );
-        uniqueUsers.sort((a, b) => {
-          const timestampA = a.latestMessage ? a.latestMessage.timestamp : 0;
-          const timestampB = b.latestMessage ? b.latestMessage.timestamp : 0;
-          return timestampB - timestampA;
-        });
-        const filteredUsers = uniqueUsers.filter(
-          (user) => user.latestMessage !== null
-        );
-        const likedUsers = await userModel.find({ _id: { $in: user.likes } }).select("_id name profileImage")
-        res.status(200).json({ uniqueUsers: filteredUsers,likes : likedUsers});
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const deleteUser=async(req,res)=>{
-    try {
-        const { userId } = req.user;
-    
-        // Find and delete the user by userId
-        const deletedUser = await userModel.findByIdAndDelete(userId);
-        if (!deletedUser) {
-          return res.status(404).json({ message: "User not found" });
-        }
-    
-        res.status(200).json({ message: "User deleted successfully" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const uploadFlatImages=async(req,res)=>{
+          .sort({ timestamp: -1 })
+          .limit(1);
+
+        return {
+          ...userDetails.toObject(),
+          latestMessage: latestMessage || null,
+        };
+      })
+    );
+    uniqueUsers.sort((a, b) => {
+      const timestampA = a.latestMessage ? a.latestMessage.timestamp : 0;
+      const timestampB = b.latestMessage ? b.latestMessage.timestamp : 0;
+      return timestampB - timestampA;
+    });
+    const filteredUsers = uniqueUsers.filter(
+      (user) => user.latestMessage !== null
+    );
+    const likedUsers = await userModel
+      .find({ _id: { $in: user.likes } })
+      .select("_id name profileImage");
+    res.status(200).json({ uniqueUsers: filteredUsers, likes: likedUsers });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    // Find and delete the user by userId
+    const deletedUser = await userModel.findByIdAndDelete(userId);
+    if (!deletedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const uploadFlatImages = async (req, res) => {
   try {
     const files = req.files;
 
@@ -627,7 +629,9 @@ const uploadFlatImages=async(req,res)=>{
     }
 
     if (files.length > 4) {
-      return res.status(404).json({ message: "You can only upload up to 4 images" });
+      return res
+        .status(404)
+        .json({ message: "You can only upload up to 4 images" });
     }
 
     user.flatImages = [];
@@ -645,154 +649,166 @@ const uploadFlatImages=async(req,res)=>{
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
+};
+const getFlatImages = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Check if flatImages array is not empty
+    if (!user.flatImages || user.flatImages.length === 0) {
+      return res.status(404).json({ message: "Image not found for the user" });
+    }
+
+    // Retrieve the first image from the flatImages array
+    const imageUrls = [];
+    for (i = 0; i < user.flatImages.length; i++) {
+      imageUrls.push(
+        `data:${user.flatImages[i].contentType};base64,${user.flatImages[i].data}`
+      ); //This is how you upload to a web project
+    }
+    // Construct the data URL for the first image
+
+    res.status(200).json({ imageUrls: imageUrls });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const profileImage = async (req, res) => {
+  try {
+    // Check if an image was uploaded
+    if (!req.file) {
+      return res.status(400).json({ message: "No image uploaded" });
+    }
+
+    // Get the user ID from the request (assuming it's added by your authentication middleware)
+    const { userId } = req.user;
+
+    // Find the user in the database
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update the user's profile image data
+    user.profileImage = {
+      data: req.file.buffer,
+      contentType: req.file.mimetype,
+    };
+
+    // Save the user object with the updated profile image
+    await user.save();
+
+    // Respond with a success message
+    res.status(200).json({ message: "Profile Image uploaded successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const displayImage = async (req, res) => {
+  try {
+    // Check if an image was uploaded
+    if (!req.file) {
+        return res.status(400).json({ message: "No image uploaded" });
+    }
+
+    // Get the user ID from the request (assuming it's added by your authentication middleware)
+    const { userId } = req.user;
+
+    // Find the user in the database
+    const user = await userModel.findById(userId);
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update the user's profile image data
+    user.displayImg = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+    };
+
+    // Save the user object with the updated profile image
+    await user.save();
+
+    // Respond with a success message
+    res.status(200).json({ message: "Profile Image uploaded successfully" });
+} catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
 }
-const getFlatImages=async(req,res)=>{
-    try {
-        const { userId } = req.user;
-        const user = await userModel.findById(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        // Check if flatImages array is not empty
-        if (!user.flatImages || user.flatImages.length === 0) {
-          return res.status(404).json({ message: "Image not found for the user" });
-        }
-    
-        // Retrieve the first image from the flatImages array
-        const imageUrls = [];
-        for (i = 0; i < user.flatImages.length; i++) {
-          imageUrls.push( `data:${user.flatImages[i].contentType};base64,${user.flatImages[i].data}`) //This is how you upload to a web project
-        }
-        // Construct the data URL for the first image
-    
-        res.status(200).json({ imageUrls: imageUrls });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const profileImage=async(req,res)=>{
-    try {
-        const { file } = req.body;
-        if (!file) {
-          return res.status(400).json({ message: "No image uploaded" });
-        }
-        // const imageBuffer = req.file.buffer.toString("base64"); //only needed in website project
-        const { userId } = req.user;
-        const user = await userModel.findById(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        const imageBuffer = Buffer.from(file, "base64");
-        user.profileImage = {
-          data: imageBuffer,
-          // contentType: req.file.mimetype,
-          contentType: "image/png",
-        };
-  
-        await user.save();
-  
-        res.status(200).json({ message: " Profile Image uploaded successfully" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const displayImage=async (req,res)=>{
-    try {
-        const { file } = req.body;
-        if (!file) {
-          return res.status(400).json({ message: "No image uploaded" });
-        }
-        // const imageBuffer = req.file.buffer.toString("base64"); //only needed in website project
-        const { userId } = req.user;
-        const user = await userModel.findById(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        const imageBuffer = Buffer.from(file, "base64");
-        user.displayImg = {
-          data: imageBuffer,
-          // contentType: req.file.mimetype,
-          contentType: "image/png",
-        };
-  
-        await user.save();
-  
-        res.status(200).json({ message: " Display Image uploaded successfully" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const addLike=async(req,res)=>{
-    try {
-        const { id } = req.body;
-        const { userId } = req.user;
-        // Find the user by userId
-        const actualId = new ObjectId(id);
-        const user = await userModel.findById(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        const userLiked = await userModel.findById(actualId);
-        if (!userLiked) {
-          return res.status(404).json({ message: "User Liked not found" });
-        }
-        // Add a like to the 0th index of the likes array
-        userLiked.likes.unshift(userId);
-    
-        // Save the user document with the updated likes array
-        await userLiked.save();
-        const newMessage = new messageModel({
-          sender: userId,
-          receiver: actualId,
-          text: "You can now Chat with this user",
-        });
-    
-        // Save the message to MongoDB
-        await newMessage.save();
-        res.status(200).json({ message: "Like added successfully" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const dislikeFlats=async(req,res)=>{
-    try {
-        const { userId } = req.user;
-        const { id } = req.body;
-        const user = await userModel.findById(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        const idMain = new ObjectId(id);
-        user.excludedFlats.push(idMain);
-        await user.save();
-        res.status(200).json({ message: "successful" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const dislikeFlatmates=async(req,res)=>{
-    try {
-        const { userId } = req.user;
-        const { id } = req.body;
-        const user = await userModel.findById(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        const idMain = new ObjectId(id);
-        user.excludedFlatmates.push(idMain);
-        await user.save();
-        res.status(200).json({ message: "successful" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
-const forgotPasswordOtpSend =async (req,res)=>{
+};
+const addLike = async (req, res) => {
+  try {
+    const { id } = req.body;
+    const { userId } = req.user;
+    // Find the user by userId
+    const actualId = new ObjectId(id);
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const userLiked = await userModel.findById(actualId);
+    if (!userLiked) {
+      return res.status(404).json({ message: "User Liked not found" });
+    }
+    // Add a like to the 0th index of the likes array
+    userLiked.likes.unshift(userId);
+
+    // Save the user document with the updated likes array
+    await userLiked.save();
+    const newMessage = new messageModel({
+      sender: userId,
+      receiver: actualId,
+      text: "You can now Chat with this user",
+    });
+
+    // Save the message to MongoDB
+    await newMessage.save();
+    res.status(200).json({ message: "Like added successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const dislikeFlats = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { id } = req.body;
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const idMain = new ObjectId(id);
+    user.excludedFlats.push(idMain);
+    await user.save();
+    res.status(200).json({ message: "successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const dislikeFlatmates = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { id } = req.body;
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const idMain = new ObjectId(id);
+    user.excludedFlatmates.push(idMain);
+    await user.save();
+    res.status(200).json({ message: "successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const forgotPasswordOtpSend = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email || email == "") {
@@ -838,8 +854,8 @@ const forgotPasswordOtpSend =async (req,res)=>{
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-}
-const verifyForgotPasswordOtp=async(req,res)=>{
+};
+const verifyForgotPasswordOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
@@ -858,8 +874,8 @@ const verifyForgotPasswordOtp=async(req,res)=>{
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-}
-const forgotPassword =async (req,res)=>{
+};
+const forgotPassword = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -879,12 +895,12 @@ const forgotPassword =async (req,res)=>{
     });
 
     let user = await newUser.save();
-    res.status(201).json({ message: "Password saved successful"});
+    res.status(201).json({ message: "Password saved successful" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};
 module.exports = {
   sendOtp,
   uploadFlatImages,
@@ -914,5 +930,5 @@ module.exports = {
   displayImage,
   forgotPasswordOtpSend,
   verifyForgotPasswordOtp,
-  forgotPassword
+  forgotPassword,
 };
