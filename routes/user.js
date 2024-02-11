@@ -71,10 +71,8 @@ router.post("/read-messages", authenticateToken, readMessages);
 router.post("/unread-messages", authenticateToken, unreadMessages);
 router.get("/user-details", authenticateToken, getUserDetails);
 router.get("/messages-access", authenticateToken, messageAccess);
-
 router.delete("/delete-user", authenticateToken, deleteUser);
 router.post("/upload-flat-images",authenticateToken,upload.array("images", 4),uploadFlatImages);
-router.get("/get-flat-images", authenticateToken, getFlatImages);
 router.post("/upload-profile-image", authenticateToken,upload.single("image"),profileImage);
 router.post("/upload-display-image",authenticateToken,upload.single("image"),displayImage);
 router.post("/add-like", authenticateToken, addLike);

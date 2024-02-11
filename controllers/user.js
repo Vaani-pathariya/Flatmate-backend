@@ -499,14 +499,20 @@ const getUserDetails = async (req, res) => {
       rent,
       dob,
       hasFlat,
-      displayImg,
       branch,
       year,
       gender,
       nonVegetarian,
       googlePicture,
-      profileImage,
     } = user;
+    const imageUrls = [];
+    for (i = 0; i < user.flatImages.length; i++) {
+      imageUrls.push(
+        `data:${user.flatImages[i].contentType};base64,${user.flatImages[i].data}`
+      ); 
+    }
+    const profile=`data:${user.profileImage.contentType};base64,${user.profileImage.data}`
+    const display=`data:${user.displayImg.contentType};base64,${user.displayImg.data}`
     // Respond with the user's details
     res.status(200).json({
       name: name,
@@ -527,8 +533,9 @@ const getUserDetails = async (req, res) => {
       year: year,
       gender: gender,
       googlePicture: googlePicture,
-      profileImage: profileImage,
-      displayImg: displayImg,
+      profileImage: profile,
+      displayImg: display,
+      flatImages: imageUrls,
     });
   } catch (error) {
     console.error(error);
@@ -645,33 +652,6 @@ const uploadFlatImages = async (req, res) => {
     await user.save();
 
     res.status(200).json({ message: "Images uploaded successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
-const getFlatImages = async (req, res) => {
-  try {
-    const { userId } = req.user;
-    const user = await userModel.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    // Check if flatImages array is not empty
-    if (!user.flatImages || user.flatImages.length === 0) {
-      return res.status(404).json({ message: "Image not found for the user" });
-    }
-
-    // Retrieve the first image from the flatImages array
-    const imageUrls = [];
-    for (i = 0; i < user.flatImages.length; i++) {
-      imageUrls.push(
-        `data:${user.flatImages[i].contentType};base64,${user.flatImages[i].data}`
-      ); //This is how you upload to a web project
-    }
-    // Construct the data URL for the first image
-
-    res.status(200).json({ imageUrls: imageUrls });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -904,7 +884,6 @@ const forgotPassword = async (req, res) => {
 module.exports = {
   sendOtp,
   uploadFlatImages,
-  getFlatImages,
   dislikeFlatmates,
   dislikeFlats,
   verifyOtp,
