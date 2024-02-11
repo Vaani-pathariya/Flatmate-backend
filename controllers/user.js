@@ -843,6 +843,99 @@ const dislikeFlatmates=async(req,res)=>{
         res.status(500).json({ message: "Internal Server Error" });
       }
 }
+const forgotPasswordOtpSend =async (req,res)=>{
+  try {
+    const { email } = req.body;
+    if (!email || email == "") {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // Check if the email is already registered
+    const existingUser = await userModel.findOne({ email });
+    if (!existingUser) {
+      return res.status(400).json({ message: "Email is not registered" });
+    }
+
+    // Generate and send OTP
+    const otp = generateOTP();
+
+    // Save OTP for verification
+    otpStorage.set(email, otp);
+    let transporter = await nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASSWORD,
+      },
+    });
+    // Send OTP to the provided email (using Nodemailer, for example)
+    const mailOptions = {
+      from: "Flatmate <vpathariya2111@gmail.com>", // sender address
+      to: `${email}`, // list of receivers
+      subject: " OTP ", // Subject line
+      text: `${otp}`,
+      html: `<b>${otp}</b>`, // html body
+    };
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        res.status(500).json({ message: "Failed to send OTP email" });
+      } else {
+        console.log("Email sent: %s", info.messageId);
+        res.status(200).json({ message: "OTP sent successfully" });
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+const verifyForgotPasswordOtp=async(req,res)=>{
+  try {
+    const { email, otp } = req.body;
+
+    // Verify OTP that should be in string format
+    const savedOTP = otpStorage.get(email);
+
+    if (!savedOTP || savedOTP !== otp) {
+      return res.status(401).json({ message: "Invalid OTP" });
+    }
+
+    // Clear the OTP from storage
+    otpStorage.delete(email);
+
+    res.status(201).json({ message: "Successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+const forgotPassword =async (req,res)=>{
+  try {
+    const { email, password } = req.body;
+
+    // Check if the email is already registered
+    const existingUser = await userModel.findOne({ email });
+    if (!existingUser) {
+      return res.status(400).json({ message: "Email not already registered" });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user
+    const newUser = new userModel({
+      email,
+      password: hashedPassword,
+    });
+
+    let user = await newUser.save();
+    res.status(201).json({ message: "Password saved successful"});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
 module.exports = {
   sendOtp,
   uploadFlatImages,
@@ -870,5 +963,8 @@ module.exports = {
   getUserDetails,
   messageAccess,
   deleteUser,
-  displayImage
+  displayImage,
+  forgotPasswordOtpSend,
+  verifyForgotPasswordOtp,
+  forgotPassword
 };

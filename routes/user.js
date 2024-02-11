@@ -29,6 +29,9 @@ const {
   addLike,
   dislikeFlats,
   dislikeFlatmates,
+  forgotPasswordOtpSend,
+  verifyForgotPasswordOtp,
+  forgotPassword,
 } = require("../controllers/user");
 
 router.post("/send-otp", sendOtp);
@@ -85,7 +88,9 @@ router.post(
   displayImage
 );
 router.post("/add-like", authenticateToken, addLike);
-
+router.post("/forgot-password-otp",forgotPasswordOtpSend);
+router.post("/forgot-password-otp-verify",verifyForgotPasswordOtp);
+router.post("/forgot-password-set",forgotPassword);
 router.post("/dislike-flats", authenticateToken, dislikeFlats);
 router.post("/dislike-flatmates", authenticateToken, dislikeFlatmates);
 module.exports = router;
