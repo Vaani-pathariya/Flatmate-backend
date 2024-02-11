@@ -34,6 +34,7 @@ const {
   forgotPasswordOtpSend,
   verifyForgotPasswordOtp,
   forgotPassword,
+  updateTextValues,
 } = require("../controllers/user");
 
 router.post("/send-otp", sendOtp);
@@ -63,10 +64,9 @@ router.post(
   furnishingStatus
 );
 // The following route needs changes
-// router.post("/update-user-info", authenticateToken, updateValues);
+router.post("/update-user-info", authenticateToken, updateTextValues);
 router.post("/store-lifestyle", authenticateToken, storeLifestyle);
 router.post("/store-bio", authenticateToken, storeBio);
-// Get request to get all the data :
 router.post("/read-messages", authenticateToken, readMessages);
 router.post("/unread-messages", authenticateToken, unreadMessages);
 router.get("/user-details", authenticateToken, getUserDetails);
