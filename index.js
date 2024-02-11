@@ -83,16 +83,6 @@ io.on("connection", (socket) => {
       console.error(error.message);
     }
   });
-  socket.on("message-read", async (messageId) => {
-    try {
-      // Update the read status in MongoDB
-      await messageModel.findByIdAndUpdate(messageId, { read: true });
-      // Broadcast the updated message to all connected users
-      io.emit("message-read", messageId);
-    } catch (error) {
-      console.error(error.message);
-    }
-  });
   // Disconnect event
   socket.on("disconnect", () => {
     console.log("User disconnected");
