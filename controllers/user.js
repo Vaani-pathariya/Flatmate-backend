@@ -432,30 +432,6 @@ const storeBio=async(req,res)=>{
         res.status(500).json({ message: "Internal Server Error" });
       }
 }
-const swipeUser=async(req,res)=>{
-    try {
-        const { objectId } = req.body;
-        const objectIdToSave = new ObjectId(objectId);
-        const { userId } = req.user;
-    
-        const user = await userModel.findById(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        const newMessage = new messageModel({
-          sender: userId,
-          receiver: objectIdToSave,
-          text: "You can now Chat with this user",
-        });
-    
-        // Save the message to MongoDB
-        await newMessage.save();
-        res.status(200).json({ message: "User stored successfully" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-}
 const readMessages=async(req,res)=>{
     try {
         const { user2IdString } = req.body;
@@ -610,7 +586,8 @@ const messageAccess=async(req,res)=>{
         const filteredUsers = uniqueUsers.filter(
           (user) => user.latestMessage !== null
         );
-        res.status(200).json({ uniqueUsers: filteredUsers });
+        const likedUsers = await userModel.find({ _id: { $in: user.likes } }).select("_id name profileImage")
+        res.status(200).json({ uniqueUsers: filteredUsers,likes : likedUsers});
       } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Internal Server Error" });
@@ -802,7 +779,14 @@ const addLike=async(req,res)=>{
     
         // Save the user document with the updated likes array
         await userLiked.save();
+        const newMessage = new messageModel({
+          sender: userId,
+          receiver: actualId,
+          text: "You can now Chat with this user",
+        });
     
+        // Save the message to MongoDB
+        await newMessage.save();
         res.status(200).json({ message: "Like added successfully" });
       } catch (error) {
         console.error(error);
@@ -957,7 +941,6 @@ module.exports = {
   storeLifestyle,
   storeBio,
   profileImage,
-  swipeUser,
   readMessages,
   unreadMessages,
   getUserDetails,

@@ -16,7 +16,6 @@ const {
   furnishingStatus,
   storeLifestyle,
   storeBio,
-  swipeUser,
   readMessages,
   unreadMessages,
   getUserDetails,
@@ -64,7 +63,6 @@ router.post(
 // router.post("/update-user-info", authenticateToken, updateValues);
 router.post("/store-lifestyle", authenticateToken, storeLifestyle);
 router.post("/store-bio", authenticateToken, storeBio);
-router.post("/swipe-user", authenticateToken, swipeUser);
 // Get request to get all the data :
 router.post("/read-messages", authenticateToken, readMessages);
 router.post("/unread-messages", authenticateToken, unreadMessages);
