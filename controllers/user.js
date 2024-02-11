@@ -496,8 +496,14 @@ const getUserDetails = async (req, res) => {
         `data:${user.flatImages[i].contentType};base64,${user.flatImages[i].data}`
       ); 
     }
-    const profile=`data:${user.profileImage.contentType};base64,${user.profileImage.data}`
-    const display=`data:${user.displayImg.contentType};base64,${user.displayImg.data}`
+    const profile=null;
+    if (user.profileImage){
+      profile=`data:${user.profileImage.contentType};base64,${user.profileImage.data}`
+    }
+    const display=null;
+    if (user.displayImg){
+      display=`data:${user.displayImg.contentType};base64,${user.displayImg.data}`
+    }
     // Respond with the user's details
     res.status(200).json({
       name: name,
