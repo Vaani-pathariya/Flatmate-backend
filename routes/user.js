@@ -67,9 +67,9 @@ router.post("/store-address-rent", authenticateToken, storeAddressRent);
 //Store furnishing status , capacity and occupancy
 router.post("/store-furnishing-status-cap-occ",authenticateToken,furnishingStatus);
 //Update text based data 
-router.patch("/update-user-info", authenticateToken, updateTextValues);
+router.post("/update-user-info", authenticateToken, updateTextValues);
 //Update image based data 
-router.patch("/update-image-data",authenticateToken,upload.fields([
+router.post("/update-image-data",authenticateToken,upload.fields([
   { name: 'profileImage', maxCount: 1 }, // Upload one profile image
   { name: 'displayImg', maxCount: 1 }, // Upload one display image
   { name: 'FlatImages', maxCount: 4 } // Upload up to 4 flat images 
