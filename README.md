@@ -41,6 +41,17 @@
 </div>
 </br>
 
+## Developers✨
+
+<table>
+  <tbody><tr>
+    <td align="center"><a href="https://github.com/Vaani-pathariya"><img alt="" src="https://avatars.githubusercontent.com/Vaani-pathariya" width="100px;"><br><sub><b>Vaani </b></sub></a></td>
+    <td align="center"><a href="https://github.com/AbhiSharma096"><img alt="" src="https://avatars.githubusercontent.com/AbhiSharma096" width="100px;"><br><sub><b>Abhishek </b></sub></a></td>
+    <td align="center"><a href="https://github.com/Agrawal-Ayush-009"><img alt="" src="https://avatars.githubusercontent.com/Agrawal-Ayush-009" width="100px;"><br><sub><b>Ayush </b></sub></a></td>
+    <td align="center"><a href="https://github.com/kur0here"><img alt="" src="https://avatars.githubusercontent.com/kur0here" width="100px;"><br><sub><b>Sparsh</b></sub></a></td>
+
+  </tr>
+</tbody></table>
 
 ![Uses Git](https://forthebadge.com/images/badges/uses-git.svg)
 ![Built with love](https://forthebadge.com/images/badges/built-with-love.svg)
