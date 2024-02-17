@@ -606,7 +606,7 @@ const messageAccess = async (req, res) => {
       uniqueUserIds.map(async (uniqueUserId) => {
         const userDetails = await userModel
           .findById(uniqueUserId)
-          .select("email _id");
+          .select("email _id name");
         const latestMessage = await messageModel
           .findOne({
             $or: [
