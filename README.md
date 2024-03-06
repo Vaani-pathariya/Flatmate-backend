@@ -8,7 +8,7 @@
 - If you have a flat, and are looking for team mates , enter the details about the flat, and upload the pictures of the flat
 - You are all set for finding flatmates / flats
 - Access your dashboard, and look through the available flatmates / flats . If you like any profile , swipe right , otherwise swipe left.
-- Once you right swiped a user , you get the access to chat with them and get more details about their need for flats / details about the flat.
+- Once you right swiped a user , you get the access to chat with them and get more details about their need for flats / details about the flatmates.
 </br>
 
 ## Features🔥
