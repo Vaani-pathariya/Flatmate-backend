@@ -30,7 +30,7 @@ const io = socketIO(server, {
     },
     methods: ["GET", "POST"],
     credentials: true,
-  },
+  }, 
 });
 const port = 8000;
 app.use(cors());
