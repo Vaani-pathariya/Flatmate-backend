@@ -49,6 +49,14 @@ app.get("/", async (req, res) => {
 io.on("connection", (socket) => {
   console.log("connected");
 
+  socket.on('join-room', (roomId, userId) => { // use simple-peer as wrapper around WebRTC  to handle peer to peer connections easily 
+    socket.join(roomId);
+    socket.to(roomId).emit('user-connected', userId);
+
+    socket.on('disconnect', () => {
+        socket.to(roomId).emit('user-disconnected', userId);
+    });
+});
   // Listen for messages
   socket.on("authenticate", (token) => {
     try {
